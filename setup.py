@@ -63,7 +63,8 @@ scripts = [
     "bez",
     "_rez_fwd",  # TODO rename this _rez-forward for consistency
     "_rez-complete",
-    "rez-gui"
+    "rez-gui",
+    "rez-init"
 ]
 
 
@@ -98,7 +99,7 @@ setup(
             find_files('*.*', 'build_system/template_files', root='rezplugins'),
         'rezgui':
             find_files('rezguiconfig', root='rezgui') +
-            find_files('*.*', 'icons', root='rezgui')
+            find_files('*.*', 'icons', root='rezgui'),
     },
     classifiers = [
         "Development Status :: 4 - Beta",

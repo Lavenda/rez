@@ -1,25 +1,24 @@
-name = "hello_world"
+name = "@PACKAGE_NAME@"
 
-version = "1.0.0"
+version = "0.0.0"
 
 authors = [
-    "ajohns"
+    "@USER_NAME@"
 ]
 
 description = \
     """
-    Python-based hello world example package.
+    @DESCRIPTION@
     """
 
 tools = [
-    "hello"
 ]
 
 requires = [
-    "python"
+    "src"
 ]
 
-uuid = "examples.hello_world_py"
+uuid = @UUID@
 
 def commands():
     env.PYTHONPATH.append("{root}/src")

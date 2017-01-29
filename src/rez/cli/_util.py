@@ -28,7 +28,8 @@ subcommands = [
     "selftest",
     "yaml2py",
     "diff",
-    "gui"]
+    "gui",
+    "init"]
 
 
 hidden_subcommands = [

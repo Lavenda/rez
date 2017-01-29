@@ -51,12 +51,12 @@ local_packages_path = "~/packages"
 
 # The path that Rez will deploy packages to when rez-release is used. For
 # production use, you will probably want to change this to a site-wide location.
-release_packages_path = "~/.rez/packages/int"
+release_packages_path = "/mnt/public/share/huangchenqi/packages"
 
 # Where temporary files go. Defaults to appropriate path depending on your
 # system - for example, *nix distributions will probably set this to "/tmp". It
 # is highly recommended that this be set to local storage, such as /tmp.
-tmpdir = None
+tmpdir = "/tmp"
 
 
 # Where temporary files for contexts go. Defaults to appropriate path depending
@@ -65,7 +65,7 @@ tmpdir = None
 # NFS location - for example, perhaps rez is used during a render and you'd like
 # to store these tempfiles in the farm queuer's designated tempdir so they're
 # cleaned up when the render completes.
-context_tmpdir = None
+context_tmpdir = "/tmp"
 
 
 ###############################################################################
