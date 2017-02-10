@@ -100,6 +100,8 @@ setup(
         'rezgui':
             find_files('rezguiconfig', root='rezgui') +
             find_files('*.*', 'icons', root='rezgui'),
+        'templates':
+            ['CMakeLists.txt', 'package.py', 'rezbuild.py']
     },
     classifiers = [
         "Development Status :: 4 - Beta",

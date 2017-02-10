@@ -42,8 +42,9 @@ import os
 # same name and version in an earlier path takes precedence.
 packages_path = [
     "~/packages",           # locally installed pkgs, not yet deployed
-    "~/.rez/packages/int",  # internally developed pkgs, deployed
-    "~/.rez/packages/ext",  # external (3rd party) pkgs, such as houdini, boost
+    "/mnt/util/ldtool/packages_rez",  # internally developed pkgs, deployed
+    "/mnt/util/ldtool/dcc_rez",  # external (3rd party) dcc pkgs, such as houdini
+    "/mnt/util/ldtool/runtime_rez",  # external (3rd party) sdk pkgs, such as houdini
 ]
 
 # The path that Rez will locally install packages to when rez-build is used
@@ -51,7 +52,7 @@ local_packages_path = "~/packages"
 
 # The path that Rez will deploy packages to when rez-release is used. For
 # production use, you will probably want to change this to a site-wide location.
-release_packages_path = "/mnt/public/share/huangchenqi/packages"
+release_packages_path = "/mnt/util/ldtool/packages_rez"
 
 # Where temporary files go. Defaults to appropriate path depending on your
 # system - for example, *nix distributions will probably set this to "/tmp". It
@@ -132,10 +133,12 @@ memcached_resolve_min_compress_len = 1
 
 # Packages that are implicitly added to all package resolves, unless the
 # --no-implicit flag is used.
+# implicit_packages = [
+#     "~platform=={system.platform}",
+#     "~arch=={system.arch}",
+#     "~os=={system.os}",
+# ]
 implicit_packages = [
-    "~platform=={system.platform}",
-    "~arch=={system.arch}",
-    "~os=={system.os}",
 ]
 
 # Override platform values from Platform.os and arch.
@@ -386,7 +389,7 @@ catch_rex_errors = True
 
 # The default working directory for a package build, relative to the package
 # source directory (this is typically where temporary build files are written).
-build_directory = "build"
+build_directory = ".build"
 
 
 # The number of threads a build system should use, eg the make '-j' option.

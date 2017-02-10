@@ -14,8 +14,10 @@ description = \
 tools = [
 ]
 
+variants=[
+]
+
 requires = [
-    "src"
 ]
 
 uuid = @UUID@
