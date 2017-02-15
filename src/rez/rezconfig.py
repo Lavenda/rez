@@ -44,7 +44,7 @@ packages_path = [
     "~/packages",           # locally installed pkgs, not yet deployed
     "/mnt/util/ldtool/packages_rez",  # internally developed pkgs, deployed
     "/mnt/util/ldtool/dcc_rez",  # external (3rd party) dcc pkgs, such as houdini
-    "/mnt/util/ldtool/runtime_rez",  # external (3rd party) sdk pkgs, such as houdini
+    "/mnt/util/ldtool/runtime",  # external (3rd party) sdk pkgs, such as houdini
 ]
 
 # The path that Rez will locally install packages to when rez-build is used
@@ -139,6 +139,7 @@ memcached_resolve_min_compress_len = 1
 #     "~os=={system.os}",
 # ]
 implicit_packages = [
+    "python",
 ]
 
 # Override platform values from Platform.os and arch.

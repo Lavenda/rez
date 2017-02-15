@@ -6,41 +6,40 @@ import uuid
 import os
 import shutil
 import getpass
+import sys
 from rez import module_root_path
 
 TEMPLATE_DIR = os.path.join(os.path.dirname(module_root_path),
                             'templates')
 PACKAGE_PY_FILE = 'package.py'
+TEMPLATE_PACAKGE_PY_FILE = os.path.join(TEMPLATE_DIR, PACKAGE_PY_FILE)
+
 OTHER_FILES = ['rezbuild.py']
 
-PACKAGE_NAME_STR = '@PACKAGE_NAME@'
-USR_NAME_STR = '@USER_NAME@'
-DESCRIPTION_STR = '@DESCRIPTION@'
-UUID_STR = '@UUID@'
+PACKAGE_NAME_STR = 'PACKAGE_NAME'
+AUTHORS_STR = 'AUTHORS'
+DESCRIPTION_STR = 'DESCRIPTION'
+UUID_STR = 'UUID'
+VERSION_STR = 'VERSION'
+COMMANDS_STR = 'COMMANDS'
 
 
-def copyPackagePy(packageName, userName, description, currentDir, uuid):
-    curPackageFile = os.path.join(currentDir, PACKAGE_PY_FILE)
-    if os.path.isfile(curPackageFile):
+def copyPackagePy(dstDir='', srcFile=TEMPLATE_PACAKGE_PY_FILE, **kwargs):
+    dstFile = os.path.join(dstDir, PACKAGE_PY_FILE)
+    if os.path.isfile(dstFile):
         return
 
-    packageFile = os.path.join(TEMPLATE_DIR, PACKAGE_PY_FILE)
-
-    with open(curPackageFile, 'w') as w:
-        with open(packageFile, 'r') as f:
+    with open(dstFile, 'w') as w:
+        with open(srcFile, 'r') as f:
             for line in f.xreadlines():
-                if PACKAGE_NAME_STR in line:
-                    newLine = line.replace(PACKAGE_NAME_STR, packageName)
-                elif USR_NAME_STR in line:
-                    newLine = line.replace(USR_NAME_STR, userName)
-                elif DESCRIPTION_STR in line:
-                    newLine = line.replace(DESCRIPTION_STR, description)
-                elif UUID_STR in line:
-                    newLine = line.replace(UUID_STR, uuid)
-                else:
-                    newLine = line
-
+                """
+                @Fixme, have to add root='{root}' 
+                 to handle command replacement problem.
+                """
+                newLine = line.format(root='{root}', **kwargs)
                 w.write(newLine)
+
+    print "{0} -> {1}".format(srcFile, dstFile)
 
 
 def copyOtherFiles(currentDir):
@@ -84,17 +83,158 @@ def setup_parser(parser, completions=False):
     parser.add_argument(
         "-d", "--description", dest="description",
         help="Add some description to package.py",
-        type=str)
+        type=str, default='No Description')
+    parser.add_argument(
+        "-t", "--type", dest="type",
+        help="Give a package type of your package, [python|runtime|dcc]",
+        type=str, default='python')
+    parser.add_argument(
+        "-pv", "--packageversion", dest="packageVersion",
+        help="Add the version to package.py",
+        type=str, default='0.0.0')
+    parser.add_argument(
+        "-vc", "--versioncopy", action="store_true",
+        help="Copy package.py to each verison folder, just for dcc and runtime.")
+    parser.add_argument(
+        "-ac", "--addcommand", action="store_true",
+        help="Please don't use this.")
+    parser.add_argument(
+        "-abc", "--addbincommand", action="store_true",
+        help="Please don't use this.")
+    parser.add_argument(
+        "-asc", "--addsrccommand", action="store_true",
+        help="Please don't use this.")
+    parser.add_argument(
+        "-alc", "--addlibcommand", action="store_true",
+        help="Please don't use this.")
+
+
+def initPythonPackage(currentDir, opts, **kwargs):
+    print 'Initializing Python Package...\n'
+
+    kwargs.update({PACKAGE_NAME_STR: os.path.basename(currentDir),
+                   AUTHORS_STR: getpass.getuser(),
+                   VERSION_STR: opts.packageVersion})
+
+    copyPackagePy(currentDir, **kwargs)
+    copyOtherFiles(currentDir)
+    setupGitignore(currentDir)
+    createBaseFolder(currentDir)
+
+
+def initDccPackage(currentDir, opts, **kwargs):
+    print 'Initializing DCC Package...\n'
+
+    kwargs.update({PACKAGE_NAME_STR: os.path.basename(currentDir),
+                   AUTHORS_STR: os.path.basename(currentDir),
+                   VERSION_STR: r'{VERSION}'})
+
+    copyPackagePy(currentDir, **kwargs)
+
+
+def initRuntimePackage(currentDir, opts, **kwargs):
+    print 'Initializing Runtime Package...\n'
+
+    kwargs.update({PACKAGE_NAME_STR: os.path.basename(currentDir),
+                   AUTHORS_STR: os.path.basename(currentDir),
+                   VERSION_STR: r'{VERSION}'})
+
+    copyPackagePy(currentDir, **kwargs)
+
+
+def versionCopy(currentDir, opts):
+    packagePyFile = os.path.join(currentDir, PACKAGE_PY_FILE)
+    if not os.path.isfile(packagePyFile):
+        print >> sys.stderr, '[ERROR] No Package.py here, please run "rez-init" first"!'
+
+    if opts.packageVersion == '0.0.0':
+        for version in os.listdir(currentDir):
+            if os.path.isdir(version):
+                disDir = os.path.join(currentDir, version)
+                kwargs = {VERSION_STR: version}
+                copyPackagePy(dstDir=disDir, srcFile=packagePyFile, **kwargs)
+    else:
+        disDir = os.path.join(currentDir, version)
+        kwargs = {VERSION_STR: version}
+        copyPackagePy(dstDir=disDir, srcFile=packagePyFile, **kwargs)
+
+    os.remove(packagePyFile)
+
+
+def getCommand(opts):
+    cmds = []
+
+    if opts.type in ('python'):
+        cmds.append('env.PYTHONPATH.append("{root}/src")')
+        cmds.append('env.PATH.append("{root}/bin")')
+
+    elif opts.type in ('runtime'):
+        cmds.append('env.LD_LIBRARY_PATH.append("{root}/lib")')
+    elif opts.type in ('dcc'):
+        cmds.append('env.PATH.append("{root}/bin")')
+
+    return '\n    '.join(cmds)
+
+
+def addCommand(currentDir, opts):
+    print 'Adding NEW commands...\n'
+    packagePyFile = os.path.join(currentDir, PACKAGE_PY_FILE)
+    cmds = []
+
+    if opts.addbincommand:
+        cmds.append('env.PATH.append("{root}/bin")')
+
+    if opts.addsrccommand:
+        cmds.append('env.PYTHONPATH.append("{root}/src")')
+
+    if opts.addlibcommand:
+        cmds.append('env.LD_LIBRARY_PATH.append("{root}/lib")')
+
+    cmd = '\n    '.join(cmds)
+
+    if not os.path.isfile(packagePyFile):
+        print >> sys.stderr, '[ERROR] No package.py file, please run "rez-ini"!'
+        return
+
+    with open(packagePyFile, 'a') as f:
+        f.write('\n    ')
+        f.write(cmd)
+
+    print 'Add new commands:'
+    print '    ' + cmd
 
 
 def command(opts, parser, extra_arg_groups=None):
     currentDir = os.getcwd()
-    userName = getpass.getuser()
-    packageName = os.path.basename(currentDir)
-    description = opts.description if opts.description else 'No Description'
-    uuidStr = '"{0}"'.format(str(uuid.uuid4()))
 
-    copyPackagePy(packageName, userName, description, currentDir, uuidStr)
-    copyOtherFiles(currentDir)
-    setupGitignore(currentDir)
-    createBaseFolder(currentDir)
+    if opts.addcommand:
+        """
+        AddCommand mode means, open package file append some specified comamnds.
+        """
+        addCommand(currentDir, opts)
+        return
+
+    kwargs = {UUID_STR: str(uuid.uuid4()), 
+              DESCRIPTION_STR: opts.description,
+              COMMANDS_STR: getCommand(opts)}
+
+    if opts.type == 'python':
+        if opts.versioncopy:
+            print >> sys.stderr, '[ERROR] Only dcc/runtime package has "-vc" mode.'
+        else:
+            initPythonPackage(currentDir, opts, **kwargs)
+
+    elif opts.type == 'dcc':
+        if opts.versioncopy:
+            versionCopy(currentDir, opts)
+        else:
+            initDccPackage(currentDir, opts, **kwargs)
+
+    elif opts.type == 'runtime':
+        if opts.versioncopy:
+            versionCopy(currentDir, opts)
+        else:
+            initRuntimePackage(currentDir, opts, **kwargs)
+
+    else:
+        print >> sys.stderr, '[ERROR] Package Type Error, please see the help(rez-init -h)!'

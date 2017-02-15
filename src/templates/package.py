@@ -1,14 +1,14 @@
-name = "@PACKAGE_NAME@"
+name = "{PACKAGE_NAME}"
 
-version = "0.0.0"
+version = "{VERSION}"
 
 authors = [
-    "@USER_NAME@"
+    "{AUTHORS}"
 ]
 
 description = \
     """
-    @DESCRIPTION@
+    {DESCRIPTION}
     """
 
 tools = [
@@ -20,8 +20,7 @@ variants=[
 requires = [
 ]
 
-uuid = @UUID@
+uuid = "{UUID}"
 
 def commands():
-    env.PYTHONPATH.append("{root}/src")
-    env.PATH.append("{root}/bin")
+    {COMMANDS}
