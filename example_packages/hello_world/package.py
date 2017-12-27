@@ -22,5 +22,5 @@ requires = [
 uuid = "examples.hello_world_py"
 
 def commands():
-    env.PYTHONPATH.append("{root}/python")
+    env.PYTHONPATH.append("{root}/src")
     env.PATH.append("{root}/bin")

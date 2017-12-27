@@ -46,8 +46,9 @@ import os
 # same name and version in an earlier path takes precedence.
 packages_path = [
     "~/packages",           # locally installed pkgs, not yet deployed
-    "~/.rez/packages/int",  # internally developed pkgs, deployed
-    "~/.rez/packages/ext",  # external (3rd party) pkgs, such as houdini, boost
+    "/mnt/util/ldpackage/packages",  # internally developed pkgs, deployed
+    "/mnt/util/ldpackage/dcc",  # external (3rd party) dcc pkgs, such as houdini
+    "/mnt/util/ldpackage/runtime",  # external (3rd party) sdk pkgs, such as houdini
 ]
 
 # The path that Rez will locally install packages to when rez-build is used
@@ -55,12 +56,12 @@ local_packages_path = "~/packages"
 
 # The path that Rez will deploy packages to when rez-release is used. For
 # production use, you will probably want to change this to a site-wide location.
-release_packages_path = "~/.rez/packages/int"
+release_packages_path = "/mnt/util/ldpackage/packages"
 
 # Where temporary files go. Defaults to appropriate path depending on your
 # system - for example, *nix distributions will probably set this to "/tmp". It
 # is highly recommended that this be set to local storage, such as /tmp.
-tmpdir = None
+tmpdir = "/tmp"
 
 # Where temporary files for contexts go. Defaults to appropriate path depending
 # on your system - for example, *nix distributions will probably set this to "/tmp".
@@ -68,7 +69,7 @@ tmpdir = None
 # NFS location - for example, perhaps rez is used during a render and you'd like
 # to store these tempfiles in the farm queuer's designated tempdir so they're
 # cleaned up when the render completes.
-context_tmpdir = None
+context_tmpdir = "/tmp"
 
 # These are extra python paths that are added to sys.path **only during a build**.
 # This means that any of the functions in the following list can import modules
@@ -175,10 +176,13 @@ memcached_resolve_min_compress_len = 1
 
 # Packages that are implicitly added to all package resolves, unless the
 # --no-implicit flag is used.
+# implicit_packages = [
+#     "~platform=={system.platform}",
+#     "~arch=={system.arch}",
+#     "~os=={system.os}",
+# ]
 implicit_packages = [
-    "~platform=={system.platform}",
-    "~arch=={system.arch}",
-    "~os=={system.os}",
+    "python",
 ]
 
 # Override platform values from Platform.os and arch.
@@ -467,7 +471,7 @@ shell_error_truncate_cap = 750
 
 # The default working directory for a package build, relative to the package
 # source directory (this is typically where temporary build files are written).
-build_directory = "build"
+build_directory = ".build"
 
 
 # The number of threads a build system should use, eg the make '-j' option.
@@ -754,7 +758,7 @@ plugins = {
         # and support a workflow such as "gitflow".  Each branch name should be
         # a regular expression that can be used with re.match(), for example
         # "^master$".
-        "releasable_branches": [],
+        "releasable_branches": ['^master$', '^rez$'],
 
         # If True, a release will be cancelled if the repository has already been
         # tagged at the current package's version. Generally this is not needed,

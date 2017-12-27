@@ -1,0 +1,4 @@
+#!/usr/bin/env python
+
+from rez.cli import run
+run("init")
