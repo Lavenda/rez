@@ -6,32 +6,39 @@ import stat
 
 def build(source_path, build_path, install_path, targets):
 
-    def _build():
-        # python source
-        src_py = os.path.join(source_path, "src")
-        dest_py = os.path.join(build_path, "src")
+    src_dirs = ['src']
+    bin_dirs = ['bin']
 
-        if not os.path.exists(dest_py):
-            shutil.copytree(src_py, dest_py, 
-                            ignore=shutil.ignore_patterns('*.pyc'))
+    def _build():
+
+        # source file
+        for src_dir in src_dirs:
+
+            src = os.path.join(source_path, src_dir)
+            dest = os.path.join(build_path, src_dir)
+
+            if not os.path.exists(dest):
+                shutil.copytree(src, dest, 
+                                ignore=shutil.ignore_patterns('*.pyc'))
 
         # binaries
         mode = (stat.S_IRUSR | stat.S_IRGRP |
                 stat.S_IXUSR | stat.S_IXGRP)
 
-        src_bin = os.path.join(source_path, "bin")
-        dest_bin = os.path.join(build_path, "bin")
+        for bin_dir in bin_dirs:
+            src_bin = os.path.join(source_path, bin_dir)
+            dest_bin = os.path.join(build_path, bin_dir)
 
-        if not os.path.exists(dest_bin):
-            shutil.copytree(src_bin, dest_bin)
+            if not os.path.exists(dest_bin):
+                shutil.copytree(src_bin, dest_bin)
 
-            for name in os.listdir(dest_bin):
-                filepath = os.path.join(dest_bin, name)
-                os.chmod(filepath, mode)
+                for name in os.listdir(dest_bin):
+                    filepath = os.path.join(dest_bin, name)
+                    os.chmod(filepath, mode)
 
 
     def _install():
-        for name in ("bin", "src"):
+        for name in (src_dirs + bin_dirs):
             src = os.path.join(build_path, name)
             dest = os.path.join(install_path, name)
 

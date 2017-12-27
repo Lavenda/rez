@@ -42,9 +42,9 @@ import os
 # same name and version in an earlier path takes precedence.
 packages_path = [
     "~/packages",           # locally installed pkgs, not yet deployed
-    "/mnt/util/ldtool/packages_rez",  # internally developed pkgs, deployed
-    "/mnt/util/ldtool/dcc_rez",  # external (3rd party) dcc pkgs, such as houdini
-    "/mnt/util/ldtool/runtime",  # external (3rd party) sdk pkgs, such as houdini
+    "/mnt/util/ldpackage/packages",  # internally developed pkgs, deployed
+    "/mnt/util/ldpackage/dcc",  # external (3rd party) dcc pkgs, such as houdini
+    "/mnt/util/ldpackage/runtime",  # external (3rd party) sdk pkgs, such as houdini
 ]
 
 # The path that Rez will locally install packages to when rez-build is used
@@ -52,7 +52,7 @@ local_packages_path = "~/packages"
 
 # The path that Rez will deploy packages to when rez-release is used. For
 # production use, you will probably want to change this to a site-wide location.
-release_packages_path = "/mnt/util/ldtool/packages_rez"
+release_packages_path = "/mnt/util/ldpackage/packages"
 
 # Where temporary files go. Defaults to appropriate path depending on your
 # system - for example, *nix distributions will probably set this to "/tmp". It
@@ -663,7 +663,7 @@ plugins = {
         # and support a workflow such as "gitflow".  Each branch name should be
         # a regular expression that can be used with re.match(), for example
         # "^master$".
-        "releasable_branches": [],
+        "releasable_branches": ['^master$', '^rez$'],
 
         # If True, a release will be cancelled if the repository has already been
         # tagged at the current package's version. Generally this is not needed,

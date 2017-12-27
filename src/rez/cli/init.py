@@ -53,19 +53,25 @@ def copyOtherFiles(currentDir):
 
 def setupGitignore(currentDir):
     """
-    Added [.build] folder into .gitignore file.
+    Added gitignore list into .gitignore file.
     """
-    BUILD_FOLDER_NAME = '.build'
+    GITIGNORE_LIST = ['.build', '*.pyc']
     GITIGNORE_FILE_NAME = '.gitignore'
     
     gitignorePath = os.path.join(currentDir, GITIGNORE_FILE_NAME)
 
+    checkMap = {item: False for item in GITIGNORE_LIST}
+
     with open(gitignorePath, 'a+r') as f:
         for line in f:
-            if BUILD_FOLDER_NAME in line:
-                break
+            for item in checkMap.keys():
+                if item in line:
+                    checkMap[item] = True
         else:
-            f.write(BUILD_FOLDER_NAME)
+            for item, isExisted in checkMap.iteritems():
+                if not isExisted:
+                    f.write(str(item))
+                    f.write('\n')
 
 
 def createBaseFolder(currentDir):
@@ -165,7 +171,7 @@ def getCommand(opts):
     cmds = []
 
     if opts.type in ('python'):
-        cmds.append('env.PYTHONPATH.append("{root}/src")')
+        cmds.append('env.PYTHONPATH.append("{root}")')
         cmds.append('env.PATH.append("{root}/bin")')
 
     elif opts.type in ('runtime'):
