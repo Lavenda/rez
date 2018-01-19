@@ -56,7 +56,7 @@ class _ScriptMaker(ScriptMaker):
 def patch_rez_binaries(dest_dir):
     bin_names = os.listdir(bin_path)
     _, _, _, venv_bin_path = path_locations(dest_dir)
-    venv_py_executable = which("python", env={"PATH":venv_bin_path, 
+    venv_py_executable = which("python", env={"PATH":venv_bin_path,
                                               "PATHEXT":os.environ.get("PATHEXT", "")})
 
     # delete rez bin files written by setuptools
